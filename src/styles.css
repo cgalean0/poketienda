@@ -1,0 +1,18 @@
+#shopping-cart {
+    position: absolute;
+    right: 0;
+    z-index: 1;
+    border: 1px solid;
+    width: 30rem;
+    height: 100%;
+}
+#container-button-back {
+    position: relative;
+    left: 0;
+    top: 0;
+    z-index: 2;
+}
+#shopping-cart-products {
+   width: 100%;
+   margin-top: 100px;
+}

@@ -1,4 +1,28 @@
 const containerProducts = document.getElementById('section-products');
+const containerShopingCartProducts = document.getElementById('shopping-cart-products');
+const shopingCart = [];
+
+const buttonCart = document.getElementById('button-cart');
+const shopingCartView = document.getElementById('shopping-cart');
+//Show and hide shopping cart
+buttonCart.addEventListener('click', () => {
+    if (shopingCartView.classList.contains('d-none')){
+        shopingCartView.classList.remove('d-none');
+        shopingCartView.classList.add('d-flex');
+    } else if (!shopingCartView.classList.contains('d-none')) {
+        shopingCartView.classList.remove('d-flex');
+        shopingCartView.classList.add('d-none');
+    }
+});
+
+//Button back function
+const buttonBackCart = document.getElementById('button-back');
+buttonBackCart.addEventListener('click', () => {
+    if (shopingCartView.classList.contains('d-flex')) {
+        shopingCartView.classList.remove('d-flex');
+        shopingCartView.classList.add('d-none');
+    }
+})
 
 let getPokemons = async () => {
     try {
@@ -44,11 +68,7 @@ let getPokemons = async () => {
 
             //Body card container
             const cardBody = document.createElement('div');
-            cardBody.classList.add('card-body');
-            cardBody.classList.add('d-flex');
-            cardBody.classList.add('justify-content-center');
-            cardBody.classList.add('align-items-center');
-            cardBody.classList.add('flex-column');
+            cardBody.classList.add('card-body', 'd-flex', 'justify-content-center', 'align-items-center', 'flex-column');
             cardBody.style.gap = "1rem"
 
             //Title card
@@ -61,9 +81,8 @@ let getPokemons = async () => {
             //Show all types for each pokemon
             const typesOfPokemon = info.types;
             const containerTypes = document.createElement('div');
-            containerTypes.classList.add('d-flex');
+            containerTypes.classList.add('d-flex', 'container-types');
             containerTypes.style.gap = "1rem";
-            containerTypes.classList.add('container-types');
             for (let i = 0; i < typesOfPokemon.length; i++) {
                 const typePokemon = typesOfPokemon[i].type
                 const nameType = document.createElement('span');
@@ -97,18 +116,90 @@ let getPokemons = async () => {
 
             //Button to function to add cart to buy pokemon
             const buttonAddToCart = document.createElement('button');
-            buttonAddToCart.classList.add('btn');
-            buttonAddToCart.classList.add('btn-primary');
+            buttonAddToCart.classList.add('btn', 'btn-primary', 'add-to-cart');
             buttonAddToCart.textContent = "Add to Cart";
+
+            buttonAddToCart.addEventListener('click', () => {
+                const item = {
+                    name: pokemon.name,
+                    price: info.base_experience,
+                    image: info.sprites.front_default
+                };
+                shopingCart.push(item);
+                showCartElements();
+            });
 
             //Implements childs of containers
             cardBody.append(cardTitle, containerTypes, price, buttonAddToCart);
             containerCard.append(imageProduct, cardBody);
             containerProducts.appendChild(containerCard);
         }
-        
     } catch (error) {
         console.error("An error ocurred: " + error);
     }
 }
 getPokemons();
+
+//Function for show the elementes in the shopping cart
+let showCartElements = () => {
+    //Clean the cart before to show elements
+    containerShopingCartProducts.innerHTML = '';
+    //For each element to the cart create a card
+    shopingCart.forEach(elem => {
+        //Container of the card
+        const cardContainer = document.createElement('div');
+        cardContainer.classList.add('card', 'mb-3');
+        cardContainer.style.maxWidth = "400px";
+
+        //First row of the card
+        const divFirstRow = document.createElement('div');
+        divFirstRow.classList.add('row', 'g-0');
+
+        //Container of the image and the image of product
+        const imageContainer = document.createElement('div');
+        imageContainer.classList.add('col-md-3');
+        const imagePokemon = document.createElement('img');
+        imagePokemon.classList.add('img-fluid', 'rounded-start');
+        imagePokemon.setAttribute('src', elem.image);
+        imagePokemon.setAttribute('alt', elem.name);
+
+        //Body of the card
+        const containerBody = document.createElement('div');
+        containerBody.classList.add('col-md-8', 'd-flex', 'justify-content-center', 'align-items-center');
+        const cardBody = document.createElement('div');
+        cardBody.classList.add('card-body');
+        const titleCard = document.createElement('h4');
+        titleCard.classList.add('card-title');
+        titleCard.textContent = elem.name;
+        const price = document.createElement('span');
+        price.textContent = `$ ${elem.price}`;
+        const deleteButtonContainer = document.createElement('div');
+        deleteButtonContainer.classList.add('container-fluid');
+
+        //Section of the delete button
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('btn', 'btn-warning', 'mr-2')
+        deleteButton.style.height = "50px";
+        const imageDeleteButton = document.createElement('img');
+        imageDeleteButton.setAttribute('src', 'assets/delete_button.svg');
+        deleteButton.appendChild(imageDeleteButton);
+        deleteButtonContainer.appendChild(deleteButton);
+        const indexProduct = shopingCart.findIndex(item => item.name === elem.name);
+        deleteButton.addEventListener('click', () => {
+            if (indexProduct !== -1) {
+                shopingCart.splice(indexProduct, 1);
+            }
+            showCartElements();
+        });
+
+
+        //Implements of components od the card
+        imageContainer.appendChild(imagePokemon);
+        cardBody.append(titleCard, price);
+        containerBody.append(cardBody, deleteButton);
+        divFirstRow.append(imageContainer, containerBody);
+        cardContainer.appendChild(divFirstRow);
+        containerShopingCartProducts.appendChild(cardContainer);
+    });
+}
+
